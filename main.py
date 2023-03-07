@@ -94,15 +94,16 @@ async def read_item(item_id: int):
 
 
 @app.get("/people/")
-async def get_people():
+async def get_people(country: Optional[str] = None):
     cursor = conn.cursor(cursor_factory=RealDictCursor)
-    cursor.execute("SELECT * FROM people")
+    sql = "SELECT * FROM people"
+    if country is not None:
+        sql += " WHERE country = '" + country + "'"
+    cursor.execute(sql)
     people = cursor.fetchall()
     return people
 
 create_table()
 import_data_to_table()
-
-get_people()
 
 uvicorn.run(app, host="0.0.0.0", port=8000)
