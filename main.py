@@ -2,15 +2,16 @@ import uvicorn
 from fastapi import FastAPI
 from model import *
 import psycopg2
-import psycopg2.extras
+from psycopg2.extras import RealDictCursor, DictCursor
 from config import settings
+import json
 
 app = FastAPI()
 DATABASE_URL = f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOSTNAME}:{settings.DATABASE_PORT}/{settings.POSTGRES_DB}"
 conn = psycopg2.connect(DATABASE_URL)
 
 
-def createTable():
+def create_table():
     cursor = conn.cursor()
 
     sql = '''DROP TABLE IF EXISTS people CASCADE'''
@@ -48,7 +49,7 @@ def createTable():
     #     if conn is not None:
     #         conn.close()
 
-def importDataToTable():
+def import_data_to_table():
     cursor = conn.cursor()
     sql = f'''COPY people(country,year,continent,least_developed,life_expectancy,population,co2_emissions,health_expenditure,electric_power_consumption,forest_area,gdp_per_capita,individuals_using_the_internet,military_expenditure,people_practicing_open_defecation,people_using_at_least_basic_drinking_water_services,obesity_among_adults,beer_consumption_per_capita)
     FROM '{settings.CSV_DATASET}'
@@ -94,15 +95,14 @@ async def read_item(item_id: int):
 
 @app.get("/people/")
 async def get_people():
-    cursor = conn.cursor()
-    cursor.execute("SELECT country,year,continent,least_developed,life_expectancy,population,\
-                   co2_emissions,health_expenditure,electric_power_consumption,forest_area,gdp_per_capita,\
-                   individuals_using_the_internet,military_expenditure,people_practicing_open_defecation,\
-                   people_using_at_least_basic_drinking_water_services,obesity_among_adults,beer_consumption_per_capita\
-                   FROM people")
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("SELECT * FROM people")
     people = cursor.fetchall()
+    return people
 
-createTable()
-importDataToTable()
+create_table()
+import_data_to_table()
+
+get_people()
 
 uvicorn.run(app, host="0.0.0.0", port=8000)
