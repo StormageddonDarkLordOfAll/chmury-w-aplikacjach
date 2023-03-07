@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+import uuid
 
 class Item(BaseModel):
     country: Optional[str] = None
@@ -20,25 +21,10 @@ class Item(BaseModel):
     obesity_among_adults: Optional[float] = None
     beer_consumption_per_capita: Optional[float] = None
 
+class ItemResponse(Item):
+    id: uuid.UUID
 
-'''
-CREATE TABLE People (
-    ID SERIAL PRIMARY KEY,
-    country varchar(255),
-    year int,
-    continent varchar(255),
-    least_developed boolean,
-    life_expectancy float,
-    population int,
-    co2_emissions float,
-    health_expenditure float,
-    electric_power_consumption float,
-    forest_area float,
-    gdp_per_capita float,
-    individuals_using_the_internet float,
-    military_expenditure float,
-    people_practicing_open_defecation float,
-    people_using_at_least_basic_drinking_water_services float,
-    obesity_among_adults float,
-    beer_consumption_per_capita float
-)'''
+class ListItemResponse(BaseModel):
+    status: str
+    results: int
+    items: List[ItemResponse]

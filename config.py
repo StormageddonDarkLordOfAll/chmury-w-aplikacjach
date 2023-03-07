@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     CSV_DATASET: str
 
+    CLIENT_ORIGIN: str
+
     class Config:
         env_file = './.env'
 
