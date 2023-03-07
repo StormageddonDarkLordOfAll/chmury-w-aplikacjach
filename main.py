@@ -14,14 +14,11 @@ from fastapi.security import OAuth2PasswordBearer
 import os
 import sys
 import requests
-# from keys import *
 from model import *
-# from fastapiAuthTut import *
 import psycopg2
 from psycopg2 import Error
 import psycopg2.extras
 from configparser import ConfigParser
-# import config
 from datetime import datetime
 import hashlib
 import aiofiles
