@@ -38,3 +38,4 @@ Temporary Items
 *.csv
 /__pycache__
 old_man.py
+.env

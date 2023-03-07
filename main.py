@@ -1,32 +1,14 @@
-import math
-import random
-import json
-from random import randrange
 import uvicorn
-from datetime import datetime
-# Press Shift+F10 to execute it or replace it with your code.
-#https://www.postgresqltutorial.com/postgresql-python/
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-from fastapi import Depends,FastAPI, File, UploadFile,Form
-from fastapi.responses import FileResponse
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer
-import os
-import sys
-import requests
+from fastapi import FastAPI
 from model import *
 import psycopg2
-from psycopg2 import Error
 import psycopg2.extras
-from configparser import ConfigParser
-from datetime import datetime
-import hashlib
-import aiofiles
-
+from config import settings
 
 app = FastAPI()
-DATABASE_URL = "postgresql://mmlynarczyk:admin@localhost:5432/postgres"
+DATABASE_URL = f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOSTNAME}:{settings.DATABASE_PORT}/{settings.POSTGRES_DB}"
 conn = psycopg2.connect(DATABASE_URL)
+
 
 def createTable():
     cursor = conn.cursor()
@@ -68,8 +50,8 @@ def createTable():
 
 def importDataToTable():
     cursor = conn.cursor()
-    sql = '''COPY people(country,year,continent,least_developed,life_expectancy,population,co2_emissions,health_expenditure,electric_power_consumption,forest_area,gdp_per_capita,individuals_using_the_internet,military_expenditure,people_practicing_open_defecation,people_using_at_least_basic_drinking_water_services,obesity_among_adults,beer_consumption_per_capita)
-    FROM '/Users/mmlynarczyk/Documents/PythonWorkspace/chmury-w-aplikacjach/Life_Expectancy_00_15.csv'
+    sql = f'''COPY people(country,year,continent,least_developed,life_expectancy,population,co2_emissions,health_expenditure,electric_power_consumption,forest_area,gdp_per_capita,individuals_using_the_internet,military_expenditure,people_practicing_open_defecation,people_using_at_least_basic_drinking_water_services,obesity_among_adults,beer_consumption_per_capita)
+    FROM '{settings.CSV_DATASET}'
     DELIMITER ';'
     CSV HEADER;'''
 
@@ -109,6 +91,16 @@ async def read_item(item_id: int):
     item = cursor.fetchone()
     return {"id": item_id, "name": item[0], "description": item[1], "price": item[2], "tax": item[3]}
 
+
+@app.get("/people/")
+async def get_people():
+    cursor = conn.cursor()
+    cursor.execute("SELECT country,year,continent,least_developed,life_expectancy,population,\
+                   co2_emissions,health_expenditure,electric_power_consumption,forest_area,gdp_per_capita,\
+                   individuals_using_the_internet,military_expenditure,people_practicing_open_defecation,\
+                   people_using_at_least_basic_drinking_water_services,obesity_among_adults,beer_consumption_per_capita\
+                   FROM people")
+    people = cursor.fetchall()
 
 createTable()
 importDataToTable()
