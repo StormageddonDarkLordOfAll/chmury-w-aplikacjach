@@ -64,36 +64,6 @@ def import_from_csv():
         db.commit()
         db.close()
 
-# @app.post("/people/")
-# async def create_item(item: Item):
-#     cursor = conn.cursor()
-#     cursor.execute(
-#         "INSERT INTO people (country,year,continent,least_developed,life_expectancy,\
-#         population,co2_emissions,health_expenditure,electric_power_consumption,\
-#             forest_area,gdp_per_capita,individuals_using_the_internet,military_expenditure,\
-#                 people_practicing_open_defecation,people_using_at_least_basic_drinking_water_services,\
-#                     obesity_among_adults,beer_consumption_per_capita)\
-#                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
-#         (item.country, item.year, item.continent, item.least_developed, item.life_expectancy,\
-#          item.population, item.co2_emissions, item.health_expenditure, item.electric_power_consumption,\
-#             item.forest_area, item.gdp_per_capita, item.individuals_using_the_internet, item.military_expenditure,\
-#                 item.people_practicing_open_defecation, item.people_using_at_least_basic_drinking_water_services,\
-#                     item.obesity_among_adults, item.beer_consumption_per_capita)
-#     )
-#     item_id = cursor.fetchone()[0]
-#     conn.commit()
-#     return {"id": item_id}
-
-
-# @app.get("/people/")
-# async def get_people(country: Optional[str] = None):
-    # cursor = conn.cursor(cursor_factory=RealDictCursor)
-    # sql = "SELECT * FROM people"
-    # if country is not None:
-    #     sql += " WHERE country = '" + country + "'"
-    # cursor.execute(sql)
-    # people = cursor.fetchall()
-    # return people
 
 import_from_csv()
 

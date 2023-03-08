@@ -37,7 +37,3 @@ async def update_item(item: model.ItemResponse, db: Session = Depends(get_db)):
     item_query.update(item.dict(exclude_unset=True), synchronize_session=False)
     db.commit()
     return updated_item
-
-@router.get("/healthcheck")
-def root():
-    return {'message': 'Hello World from router'}
