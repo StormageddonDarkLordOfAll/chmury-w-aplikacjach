@@ -32,6 +32,7 @@ Base.metadata.create_all(engine)
 
 def import_from_csv():
     db = next(get_db())
+    db.query(dbmodel.Item).delete()
     try:
         data = genfromtxt(settings.CSV_DATASET, delimiter=';', skip_header=1, dtype=None, encoding=None).tolist()
 
