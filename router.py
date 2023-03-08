@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, HTTPException, status
 from database import get_db
 from dbmodel import Item
 import model
 from typing import Optional
+import uuid
 
 
 router = APIRouter()
@@ -24,6 +25,18 @@ async def create_item(item: model.Item, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_item)
     return new_item
+
+@router.put("/")
+async def update_item(item: model.ItemResponse, db: Session = Depends(get_db)):
+    item_query = db.query(Item).filter(Item.id == item.id)
+    updated_item = item_query.first()
+
+    if not updated_item:
+        raise HTTPException(status_code=status.HTTP_200_OK, detail=f'No item with this id: {item.id} found')
+    
+    item_query.update(item.dict(exclude_unset=True), synchronize_session=False)
+    db.commit()
+    return updated_item
 
 @router.get("/healthcheck")
 def root():
