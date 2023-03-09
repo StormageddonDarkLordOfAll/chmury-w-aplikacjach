@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 from fastapi import Depends, APIRouter, HTTPException, status
 from database import get_db
 from dbmodel import Item
@@ -37,3 +38,27 @@ async def update_item(item: model.ItemResponse, db: Session = Depends(get_db)):
     item_query.update(item.dict(exclude_unset=True), synchronize_session=False)
     db.commit()
     return updated_item
+
+@router.get("/lifeExpImprovedByDrinking/")
+async def get_people2(db: Session = Depends(get_db)):
+    query = '''select p1.country, p2.country,  
+    p1.life_expectancy as life_expectancy_2000, p2.life_expectancy as life_expectancy_2015,
+    (SELECT avg(life_expectancy) from people where country = p1.country group by country) as avg_life_expectancy,
+    p1.beer_consumption_per_capita as beer_consumption_per_capita_2000,p2.beer_consumption_per_capita as beer_consumption_per_capita_2015,
+    (SELECT avg(beer_consumption_per_capita) from people where country = p1.country group by country) as avg_beer_consumption_per_capita
+    from people p1, people p2
+    where 
+    p1.year = 2000 and
+    p2.year = 2015 and
+    p1.country = p2.country and
+    p1.life_expectancy < p2.life_expectancy and
+    p1.beer_consumption_per_capita < p2.beer_consumption_per_capita and
+    p2.beer_consumption_per_capita > (SELECT avg(beer_consumption_per_capita) from people where country = p1.country group by country) and
+    p2.life_expectancy > (SELECT avg(life_expectancy) from people where country = p1.country group by country)
+    '''
+    result = []
+    people = db.execute(text(query))
+    for p in people:
+        result.append(p)
+    
+    return {'status': 'success', 'results': len(result), 'items': result}
