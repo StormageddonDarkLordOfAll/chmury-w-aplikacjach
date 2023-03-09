@@ -42,14 +42,14 @@ async def update_item(item: model.ItemResponse, db: Session = Depends(get_db)):
 @router.get("/lifeExpImprovedByDrinking/")
 async def get_people2(db: Session = Depends(get_db)):
     query = '''select p1.country, p2.country,  
-    p1.life_expectancy as life_expectancy_2000, p2.life_expectancy as life_expectancy_2015,
+    p1.life_expectancy as life_expectancy_ealriest, p2.life_expectancy as life_expectancy_newest,
     (SELECT avg(life_expectancy) from people where country = p1.country group by country) as avg_life_expectancy,
-    p1.beer_consumption_per_capita as beer_consumption_per_capita_2000,p2.beer_consumption_per_capita as beer_consumption_per_capita_2015,
+    p1.beer_consumption_per_capita as beer_consumption_per_capita_earliest,p2.beer_consumption_per_capita as beer_consumption_per_capita_newest,
     (SELECT avg(beer_consumption_per_capita) from people where country = p1.country group by country) as avg_beer_consumption_per_capita
     from people p1, people p2
     where 
-    p1.year = 2000 and
-    p2.year = 2015 and
+    p1.year = (SELECT min(year) from people where country = p1.country group by country) and
+    p2.year = (SELECT max(year) from people where country = p1.country group by country)  and
     p1.country = p2.country and
     p1.life_expectancy < p2.life_expectancy and
     p1.beer_consumption_per_capita < p2.beer_consumption_per_capita and
