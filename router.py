@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
+from sqlalchemy import func
 from fastapi import Depends, APIRouter, HTTPException, status
 from database import get_db
 from dbmodel import Item
@@ -61,4 +62,6 @@ async def get_people2(db: Session = Depends(get_db)):
     for p in people:
         result.append(p)
     
-    return {'status': 'success', 'results': len(result), 'items': result}
+    country_count = db.query(Item.country, func.count(Item.country)).group_by(Item.country).all()
+
+    return {'status': 'success', 'results': len(result),'country_count':len(country_count) ,'items': result}
