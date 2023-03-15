@@ -17,7 +17,7 @@ async def get_people(db: Session = Depends(get_db), country: Optional[str] = Non
     if country is not None:
         people = db.query(Item).filter(Item.country.contains(country)).all()
     else:
-        people = db.query(Item).all()
+        people = db.query(Item).order_by().all()
     return {'status': 'success', 'results': len(people), 'items': people}
 
 @router.post("/")
@@ -40,10 +40,10 @@ async def update_item(item: model.ItemResponse, db: Session = Depends(get_db)):
     db.commit()
     return updated_item
 
-@router.get("/lifeExpImprovedByDrinking/")
+@router.get("/beer_is_life")
 async def get_people2(db: Session = Depends(get_db)):
     query = '''select p1.country, p2.country,  
-    p1.life_expectancy as life_expectancy_ealriest, p2.life_expectancy as life_expectancy_newest,
+    p1.life_expectancy as life_expectancy_earliest, p2.life_expectancy as life_expectancy_newest,
     (SELECT avg(life_expectancy) from people where country = p1.country group by country) as avg_life_expectancy,
     p1.beer_consumption_per_capita as beer_consumption_per_capita_earliest,p2.beer_consumption_per_capita as beer_consumption_per_capita_newest,
     (SELECT avg(beer_consumption_per_capita) from people where country = p1.country group by country) as avg_beer_consumption_per_capita

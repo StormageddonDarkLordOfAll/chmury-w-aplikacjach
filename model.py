@@ -7,7 +7,7 @@ class Item(BaseModel):
     year: Optional[int] = None
     continent: Optional[str] = None
     least_developed: Optional[bool] = None
-    life_expectancy: Optional[float]=None
+    life_expectancy: Optional[float] = None
     population: Optional[int] = None
     co2_emissions: Optional[float] = None
     health_expenditure: Optional[float] = None
