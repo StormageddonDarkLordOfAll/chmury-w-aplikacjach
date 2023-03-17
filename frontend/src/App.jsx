@@ -404,7 +404,7 @@ function App() {
           <label htmlFor="search">Search by country name:</label>
           <input className="border border-black px-2 py-1 w-[400px]" type="text" value={search} onChange={e => setSearch(e.target.value)}/>
         </div>
-        <button onClick={ () => {setModalVisible(true); setIsModalAddRecord(true)} } className="text-white bg-gray-500 rounded-xl px-4 py-1 hover:bg-gray-600">
+        <button onClick={ () => {setModalVisible(true); setIsModalAddRecord(true); handleReset()} } className="text-white bg-gray-500 rounded-xl px-4 py-1 hover:bg-gray-600">
           Add record
         </button>
       </div>
