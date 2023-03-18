@@ -1,0 +1,31 @@
+version: '3'
+services:
+  backend:
+    build: backend 
+    image: backend:1.0
+    env_file:
+      - ./backend/app/.env
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+    container_name: backend
+    restart: unless-stopped
+  frontend:
+    build: frontend
+    image: frontend:1.0
+    # env_file:
+      # - ./gromacs_api/app/.env
+    ports:
+      - 5173:5173
+    container_name: frontend
+    # restart: unless-stopped
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: chmury
+    ports:
+      - 5432:5432
+    container_name: postgres

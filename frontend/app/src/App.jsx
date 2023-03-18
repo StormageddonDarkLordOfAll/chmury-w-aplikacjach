@@ -348,7 +348,6 @@ function App() {
                   } else if (type === 'float') {
                     inputElement = <input id={`H${id}`} onFocus={handleFocus} type="number" min="0" step="0.0001" name={H} value={eval(H) ?? ''} onChange={a => eval(`set_${H}(${a.target.value})`)} className="border border-black h-8 px-2"/>
                   } else if (type === 'bool') {
-                    console.log(H);
                     inputElement = <input id={`H${id}`} onFocus={handleFocus} type="checkbox" name={H} checked={eval(H) ?? false} onChange={a => eval(`set_${H}(${a.target.checked})`)} className="h-6 w-6 my-1 justify-self-start"/>
                   }
 
