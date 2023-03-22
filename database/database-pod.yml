@@ -14,6 +14,11 @@ spec:
       envFrom:
         - configMapRef:
             name: database-config
+      livenessProbe:
+        exec:
+          command: ["pg_isready", "-U", "$POSTGRES_USER", "-d", "$POSTGRES_DB"]
+        initialDelaySeconds: 45
+        timeoutSeconds: 2
       volumeMounts:
         - mountPath: /var/lib/postgresql/data
           name: postgredb

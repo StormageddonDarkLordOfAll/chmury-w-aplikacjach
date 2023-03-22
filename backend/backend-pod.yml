@@ -19,3 +19,11 @@ spec:
       envFrom:
         - secretRef:
             name: backend-secret
+      livenessProbe:
+        httpGet:
+          path: /api/healthcheck
+          port: http
+        initialDelaySeconds: 5
+        timeoutSeconds: 1
+        periodSeconds: 10
+        failureThreshold: 3

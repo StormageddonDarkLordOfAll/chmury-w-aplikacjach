@@ -13,3 +13,11 @@ spec:
         - containerPort: 5173
           name: http
           protocol: TCP
+      livenessProbe:
+        httpGet:
+          path: /index.html
+          port: http
+        initialDelaySeconds: 15
+        timeoutSeconds: 1
+        periodSeconds: 10
+        failureThreshold: 3
