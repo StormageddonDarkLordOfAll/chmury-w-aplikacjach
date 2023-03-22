@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend-pod
+  labels:
+    app: frontend
+spec:
+  containers:
+    - image: frontend:1.0
+      name: frontend-container
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 5173
+          name: http
+          protocol: TCP

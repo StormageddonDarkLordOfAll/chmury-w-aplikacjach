@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-pod
+  labels:
+    app: backend
+spec:
+  containers:
+    - image: backend:1.0
+      name: backend-container
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        - containerPort: 5432
+          name: postgres
+          protocol: TCP
+      envFrom:
+        - secretRef:
+            name: backend-secret

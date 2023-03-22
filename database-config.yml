@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-config
+  labels:
+    app: database
+data:
+  POSTGRES_DB: chmury
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: admin

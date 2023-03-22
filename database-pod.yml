@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: database-pod
+  labels:
+    app: database
+spec:
+  containers:
+    - image: postgres:latest
+      name: database-container
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 5432
+      envFrom:
+        - configMapRef:
+            name: database-config
+      volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgredb
+  volumes:
+    - name: postgredb
+      persistentVolumeClaim:
+        claimName: database-pv-claim
