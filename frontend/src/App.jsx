@@ -82,6 +82,8 @@ function App() {
 
   const HEADERS_TYPES = LABELS.map(L => L[1]);
 
+  const BACKEND_ADRESS = "http://127.0.0.1:8000";
+
   // const toggleModal = () => {
   //   setModalVisible(!modalVisible);
   //   setTimeout(inputsValid, 100);
@@ -121,7 +123,7 @@ function App() {
     }
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/people", {
+      const res = await fetch(BACKEND_ADRESS+"/api/people", {
         method: "POST",
         body: JSON.stringify(body),
         headers: {
@@ -155,7 +157,7 @@ function App() {
     }
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/people", {
+      const res = await fetch(BACKEND_ADRESS+"/api/people", {
         method: "PUT",
         body: JSON.stringify(body),
         headers: {
@@ -230,7 +232,7 @@ function App() {
 
   const fetchData = async () => {
     try {
-      let res = await fetch("http://127.0.0.1:8000/api/people" + (search ? `?country=${search}`:''));
+      let res = await fetch(BACKEND_ADRESS+"/api/people" + (search ? `?country=${search}`:''));
       if (res) {
         res = await res.json();
         // setDataRaw(res?.items.filter((_, id) => id < 100));
@@ -238,7 +240,7 @@ function App() {
         setDataRawCount(res?.results);
       }
 
-      res = await fetch("http://127.0.0.1:8000/api/people/beer_is_life");
+      res = await fetch(BACKEND_ADRESS+"/api/people/beer_is_life");
       if (res) {
         res = await res.json();
         setDataBeer(res);
