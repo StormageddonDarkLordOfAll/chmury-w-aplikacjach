@@ -36,6 +36,7 @@ Temporary Items
 !.gitignore
 !.gitsubmodules
 *.csv
+.vagrant
 */__pycache__
 old_man.py
 .env

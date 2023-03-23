@@ -1,0 +1,7 @@
+---
+- name: Database configuration
+  hosts: database
+  become: true
+
+#TODO
+
