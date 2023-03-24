@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
     # Database machine
     config.vm.define "database" do |database|
         database.vm.box = "ubuntu/xenial64"
-        database.vm.network "private_network", ip: "192.168.4.20"
+        database.vm.network "private_network", ip: "192.168.56.2"
 		config.vm.network "forwarded_port", guest: 5432, host: 5432
         database.vm.provision "ansible" do |ansible|
             ansible.playbook = "database.yml"
@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
     config.vm.define "frontend" do |frontend|
       frontend.vm.box = "generic/debian11"
       frontend.vm.network "forwarded_port", guest: 80, host: 1234
-      frontend.vm.network "private_network", ip: "192.168.6.9"
+      frontend.vm.network "private_network", ip: "192.168.56.3"
       frontend.vm.provision "ansible" do |ansible|
         ansible.playbook = "frontend.yml"
       end
@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
     # Backend machine
     config.vm.define "backend" do |backend|
       backend.vm.box = "generic/debian11"
-      backend.vm.network "private_network", ip: "192.168.21.37"
+      backend.vm.network "private_network", ip: "192.168.56.4"
       backend.vm.provision "ansible" do |ansible|
         ansible.playbook = "backend.yml"
       end

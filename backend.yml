@@ -24,4 +24,4 @@
       args:
         chdir: /home/vagrant/chmury-w-aplikacjach/backend
       environment:
-        DATABASE_LOCATION: 192.168.4.20
+        DATABASE_LOCATION: 192.168.56.2
