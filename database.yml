@@ -4,7 +4,7 @@
   become: true
 
 - hosts: all
-  sudo: yes
+  become: true
   gather_facts: no
   tasks:
     - name: add keyserver to apt
@@ -15,7 +15,7 @@
                   create=yes
 
 - hosts: all
-  sudo: yes
+  become: true
   gather_facts: no
   tasks:
     - name: ensure apt cache is up to date
@@ -30,7 +30,7 @@
           - postgresql-9.4
 
 - hosts: all
-  sudo: yes
+  become: true
   sudo_user: postgres
   gather_facts: no
 
@@ -54,7 +54,7 @@
       notify: restart postgresql
 
 - hosts: all
-  sudo: yes
+  become: true
   sudo_user: postgres
   gather_facts: no
 
