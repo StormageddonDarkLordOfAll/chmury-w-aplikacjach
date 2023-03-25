@@ -31,7 +31,7 @@
 
 - hosts: all
   become: true
-  sudo_user: postgres
+  user: postgres
   gather_facts: no
 
   handlers:
@@ -55,7 +55,7 @@
 
 - hosts: all
   become: true
-  sudo_user: postgres
+  user: postgres
   gather_facts: no
 
   vars:
