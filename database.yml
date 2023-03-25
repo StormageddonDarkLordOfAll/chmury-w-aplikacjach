@@ -3,16 +3,6 @@
   hosts: database
   become: true
 
-- hosts: all
-  become: true
-  gather_facts: no
-  tasks:
-    - name: add keyserver to apt
-      command: apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
-    - name: add custom postgres repo to apt
-      lineinfile: dest=/etc/apt/sources.list.d/pgdg.list
-                  line="deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" state=present
-                  create=yes
 
 - hosts: all
   become: true
