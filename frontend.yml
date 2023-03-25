@@ -7,6 +7,11 @@
       apt: 
         name: nginx
 
+    - name: Install nginx-start
+      service: 
+        name: nginx
+        state: started
+
     - name: Install Node.js package
       apt:
         name: nodejs
