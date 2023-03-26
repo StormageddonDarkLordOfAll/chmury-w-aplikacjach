@@ -21,7 +21,13 @@
       apt:
         name: npm
         state: latest
-            
+    
+    - name: "Downloading node.js source
+        shell: curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs
+        when: nodejs_installed|failed
+        tags:
+            - nodejs
+    
     - name: Install Node.js dependencies
       npm:
         path: /home/vagrant/chmury-w-aplikacjach/frontend
