@@ -21,17 +21,6 @@
       apt:
         name: npm
         state: latest
-        
-    - name: copy files to destination
-      hosts: localhost
-      connection: local
-      tasks:
-        - name: copy src.txt as dest.txt in the same dir 
-          copy:
-            src: /home/vagrant/chmury-w-aplikacjach/frontend
-            dest: /home/chmury-w-aplikacjach/frontend
-          tags:
-            - simple_copy
             
     - name: Install Node.js dependencies
       npm:

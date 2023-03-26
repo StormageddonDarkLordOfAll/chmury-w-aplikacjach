@@ -8,15 +8,6 @@
         name: [python3, python3-pip]
         state: present
     
-    - name: copy files
-      hosts: localhost
-      connection: local
-      tasks:
-        - name: copy files backend 
-          copy:
-            src: /home/vagrant/chmury-w-aplikacjach/backend
-            dest: /home/vagrant/chmury-w-aplikacjach/backend
-    
     - name: Install Python requirements
       pip:
         requirements: /home/vagrant/chmury-w-aplikacjach/backend/requirements.txt
