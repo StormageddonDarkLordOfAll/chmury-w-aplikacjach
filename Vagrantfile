@@ -11,6 +11,17 @@ Vagrant.configure("2") do |config|
       vb.cpus = 2
     end
 
+     # Frontend machine
+    config.vm.define "frontend" do |frontend|
+      frontend.vm.box = "generic/debian11"
+      frontend.vm.network "forwarded_port", guest: 80, host: 1234
+      frontend.vm.network "private_network", ip: "192.168.56.3"
+	  frontend.vm.provision "file", source:"frontend",destination: "~/chmury-w-aplikacjach/frontend"
+      frontend.vm.provision "ansible" do |ansible|
+        ansible.playbook = "frontend.yml"
+      end
+    end 
+
     # Database machine
     config.vm.define "database" do |database|
         database.vm.box = "ubuntu/xenial64"
@@ -27,17 +38,6 @@ Vagrant.configure("2") do |config|
 	  backend.vm.provision "file", source:"backend",destination: "/home/vagrant/chmury-w-aplikacjach/backend"
       backend.vm.provision "ansible" do |ansible|
         ansible.playbook = "backend.yml"
-      end
-    end 
- 
-     # Frontend machine
-    config.vm.define "frontend" do |frontend|
-      frontend.vm.box = "generic/debian11"
-      frontend.vm.network "forwarded_port", guest: 80, host: 1234
-      frontend.vm.network "private_network", ip: "192.168.56.3"
-	  frontend.vm.provision "file", source:"frontend",destination: "~/chmury-w-aplikacjach/frontend"
-      frontend.vm.provision "ansible" do |ansible|
-        ansible.playbook = "frontend.yml"
       end
     end 
   end
