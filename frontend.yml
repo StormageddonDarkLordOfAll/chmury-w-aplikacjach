@@ -24,9 +24,9 @@
     
     - name: "Downloading node.js source
       shell: curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt-get install -y nodejs
-        when: nodejs_installed|failed
+      when: nodejs_installed|failed
       tags:
-        - nodejs
+      - nodejs
     
     - name: Install Node.js dependencies
       npm:
