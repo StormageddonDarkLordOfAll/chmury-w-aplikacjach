@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
      # Frontend machine
     config.vm.define "frontend" do |frontend|
       frontend.vm.box = "generic/debian11"
-      frontend.vm.network "forwarded_port", guest: 5173, host: 1234
+      frontend.vm.network :forwarded_port, host: 1234, guest: 5173
       frontend.vm.network "private_network", ip: "192.168.56.3"
 	  frontend.vm.provision "file", source:"frontend",destination: "~/chmury-w-aplikacjach/frontend"
       frontend.vm.provision "ansible" do |ansible|
