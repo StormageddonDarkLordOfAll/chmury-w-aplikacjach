@@ -41,5 +41,5 @@
     - name: Copy frontend files
       copy:
         remote_src: yes
-        src: /home/vagrant/chmury-w-aplikacjach/frontend/dist
+        src: /home/vagrant/chmury-w-aplikacjach/frontend/dist/
         dest: /var/www/html/
