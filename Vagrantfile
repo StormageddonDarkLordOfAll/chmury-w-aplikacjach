@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
         database.vm.box = "ubuntu/xenial64"
         database.vm.network "private_network", ip: "192.168.56.6"
         database.vm.provision "ansible" do |ansible|
-            ansible.playbook = "database.yml"
+            ansible.playbook = "database2.yml"
         end
     end
  

@@ -19,6 +19,25 @@
         name: python3-psycopg2
         state: present
 
+
+    - name: Configure pg_hba.conf
+      lineinfile:
+        path: /etc/postgresql/9.5/main/pg_hba.conf
+        regexp: "^host.*all.*all.*127.0.0.1/32.*md5$"
+        line: "host    all             all             0.0.0.0/0               md5"
+        state: present
+      notify:
+        - Restart PostgreSQL
+
+    - name: Configure postgresql.conf
+      lineinfile:
+        path: /etc/postgresql/9.5/main/postgresql.conf
+        regexp: "^#?listen_addresses.*"
+        line: "listen_addresses = '*'"
+        state: present
+      notify:
+        - Restart PostgreSQL
+
     - name: Configure PostgreSQL
       postgresql_user:
         db: postgres
@@ -34,23 +53,6 @@
         owner: "admin"
         state: present
 
-    - name: Configure pg_hba.conf
-      lineinfile:
-        path: /etc/postgresql/{{ postgres_version }}/main/pg_hba.conf
-        regexp: "^host.*all.*all.*127.0.0.1/32.*md5$"
-        line: "host    all             all             0.0.0.0/0               md5"
-        state: present
-      notify:
-        - Restart PostgreSQL
-
-    - name: Configure postgresql.conf
-      lineinfile:
-        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
-        regexp: "^#?listen_addresses.*"
-        line: "listen_addresses = '*'"
-        state: present
-      notify:
-        - Restart PostgreSQL
 
   handlers:
     - name: Restart PostgreSQL
