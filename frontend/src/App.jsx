@@ -82,7 +82,7 @@ function App() {
 
   const HEADERS_TYPES = LABELS.map(L => L[1]);
 
-  const BACKEND_ADDRESS = "http://127.0.0.1:8000";
+  const BACKEND_ADDRESS = "http://192.168.56.4:8000";
 
   // const toggleModal = () => {
   //   setModalVisible(!modalVisible);

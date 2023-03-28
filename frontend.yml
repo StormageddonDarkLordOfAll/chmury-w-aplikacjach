@@ -35,8 +35,6 @@
       command: /usr/bin/npm run build
       args:
         chdir: /home/vagrant/chmury-w-aplikacjach/frontend
-      environment:
-        REACT_APP_API_URL: http://192.168.56.4:5173
 
     - name: Copy frontend files
       copy:

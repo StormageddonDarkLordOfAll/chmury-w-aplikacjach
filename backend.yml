@@ -19,4 +19,11 @@
       args:
         chdir: /home/vagrant/chmury-w-aplikacjach/backend
       environment:
-        DATABASE_LOCATION: 192.168.56.6
+        POSTGRES_HOSTNAME: 192.168.56.6
+        DATABASE_PORT: 5432
+        POSTGRES_PASSWORD: admin
+        POSTGRES_USER: admin
+        POSTGRES_DB: people
+        POSTGRES_HOST: postgres
+        CSV_DATASET: /home/vagrant/chmury-w-aplikacjach/backend/Life_Expectancy_00_15.csv
+        CLIENT_ORIGIN: http://192.168.56.3

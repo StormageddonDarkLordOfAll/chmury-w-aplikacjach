@@ -1,5 +1,0 @@
-vagrant up - starts all the machines from Vagrantfile
-
-vagrant destroy machinename - destroys a machine that's already running (in this example "machinename")
-
-vagrat ssh machinename

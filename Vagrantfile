@@ -24,10 +24,10 @@ Vagrant.configure("2") do |config|
 
     # Database machine
     config.vm.define "database" do |database|
-        database.vm.box = "ubuntu/xenial64"
+        database.vm.box = "generic/debian11"
         database.vm.network "private_network", ip: "192.168.56.6"
         database.vm.provision "ansible" do |ansible|
-            ansible.playbook = "database2.yml"
+            ansible.playbook = "database.yml"
         end
     end
  

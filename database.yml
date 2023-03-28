@@ -1,68 +1,72 @@
 ---
-- name: Postgre SQL Database installation and configuration
+- name: Install PostgreSQL
   hosts: all
   become: true
-  become_user: root
   tasks:
-  - name: Get the OS platform
-    command: cat /etc/redhat-release
-    register: redhatRelease
+    - name: Update apt cache
+      apt:
+        update_cache: yes
 
-  - name: Print the redhat-release
-    debug: msg={{ redhatRelease.stdout }}
+    - name: Install PostgreSQL and its dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - postgresql-13
+        - postgresql-contrib
+        - postgresql-server-dev-13
+        - acl
+    - name: Install psycopg2 library
+      apt:
+        name: python3-psycopg2
+        state: present
 
-  - name: Update packages
-    yum: name=* state=latest
 
-  - name: Configure the PostgreSQL RPM repository
-    dnf:
-      name: "https://download.postgresql.org/pub/repos/yum/reporpms/F-34-x86_64/pgdg-fedora-repo-latest.noarch.rpm"
-      state: present
+    - name: Configure pg_hba.conf
+      lineinfile:
+        path: /etc/postgresql/13/main/pg_hba.conf
+        regexp: "^host.*all.*all.*127.0.0.1/32.*md5$"
+        line: "host    all             all             0.0.0.0/0               md5"
+        state: present
+      notify:
+        - Restart PostgreSQL
 
-  - name: Install PostgreSQL server
-    dnf:
-      name: postgresql14-server
-      state: present
+    - name: Configure postgresql.conf
+      lineinfile:
+        path: /etc/postgresql/13/main/postgresql.conf
+        regexp: "^#?listen_addresses.*"
+        line: "listen_addresses = '*'"
+        state: present
+      notify:
+        - Restart PostgreSQL
 
-  - name: Check if Database is initialized
-    stat:
-      path: /var/lib/pgsql/14/data/pg_hba.conf
-    register: result
+    - name: "Find out if PostgreSQL is initialized"
+      ansible.builtin.stat:
+        path: "/var/lib/pgsql/data/pg_hba.conf"
+      register: postgres_data
+ 
+    - name: "Start and enable services"
+      service: "name={{ item }} state=started enabled=yes"
+      with_items:
+        - postgresql
 
-  - name: Initialize the database
-    shell: /usr/pgsql-14/bin/postgresql-14-setup initdb
-    when: not result.stat.exists
+    - name: Enable passwordless sudo
+      lineinfile: dest=/etc/sudoers regexp=^vagrant line="vagrant ALL=(postgres) NOPASSWD:/bin/sh"
 
-  - name: Allow remote connection to PostgreSQL database
-    copy:
-      src: /home/admin/middleware/stack/ansible/playbooks/postgresql-setup/pg_hba.conf
-      dest: /var/lib/pgsql/14/data/
+    - name: Create a PostgreSQL database user
+      postgresql_user: name=admin password=admin role_attr_flags=CREATEDB state=present
+      become: yes
+      become_user: postgres
+      become_method: sudo
+    - name: Create people database
+      become: yes
+      become_user: postgres
+      postgresql_db:
+        name: people
+        encoding: UTF-8
 
-  - name: Allow PostgreSQL to listen on all interfaces
-    copy:
-      src: /home/admin/middleware/stack/ansible/playbooks/postgresql-setup/postgresql.conf
-      dest: /var/lib/pgsql/14/data/
-
-  - name: Start the database service
-    service:
-      name: postgresql-14
-      state: started
-
-  - name: Allow PostgreSQL database service
-    firewalld:
-      service: postgresql
-      permanent: yes
-      state: enabled
-      
-  - name: Connect to default database and create a user with super prvileges
-    postgresql_user:
-      name: dbadmin
-      password: dbadmin1234
-      role_attr_flags: CREATEDB,SUPERUSER,CREATEROLE,LOGIN
-  - name: Create a new database with name "testdatabase"
-    postgresql_db:
-      login_host: 192.168.122.234
-      login_user: dbadmin
-      login_password: dbadmin1234
-      port: 5432
-      name: testdatabase    
+  handlers:
+    - name: Restart PostgreSQL
+      service:
+        name: postgresql
+        state: restarted
