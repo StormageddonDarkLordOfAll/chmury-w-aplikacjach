@@ -1,0 +1,59 @@
+---
+- name: Install PostgreSQL
+  hosts: all
+  become: true
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install PostgreSQL and its dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - postgresql
+        - postgresql-contrib
+    - name: Install psycopg2 library
+      apt:
+        name: python3-psycopg2
+        state: present
+
+    - name: Configure PostgreSQL
+      postgresql_user:
+        db: postgres
+        login_user: admin
+        name: "admin"
+        password: "admin"
+        state: present
+    
+        
+    - name: Create database
+      postgresql_db:
+        name: "postgres"
+        owner: "admin"
+        state: present
+
+    - name: Configure pg_hba.conf
+      lineinfile:
+        path: /etc/postgresql/{{ postgres_version }}/main/pg_hba.conf
+        regexp: "^host.*all.*all.*127.0.0.1/32.*md5$"
+        line: "host    all             all             0.0.0.0/0               md5"
+        state: present
+      notify:
+        - Restart PostgreSQL
+
+    - name: Configure postgresql.conf
+      lineinfile:
+        path: /etc/postgresql/{{ postgres_version }}/main/postgresql.conf
+        regexp: "^#?listen_addresses.*"
+        line: "listen_addresses = '*'"
+        state: present
+      notify:
+        - Restart PostgreSQL
+
+  handlers:
+    - name: Restart PostgreSQL
+      service:
+        name: postgresql
+        state: restarted
