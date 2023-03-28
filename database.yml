@@ -1,6 +1,6 @@
 ---
 - name: Postgre SQL Database installation and configuration
-  hosts: 192.168.56.6
+  hosts: *
   become: true
   become_user: root
   tasks:
