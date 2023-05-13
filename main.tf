@@ -173,7 +173,7 @@ resource "google_compute_firewall" "flask" {
 
   allow {
     protocol = "tcp"
-    ports    = ["5000"]
+    ports    = ["1234","8000","5432","5173"]
   }
   source_ranges = ["0.0.0.0/0"]
 }
