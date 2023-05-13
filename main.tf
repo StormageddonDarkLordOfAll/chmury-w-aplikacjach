@@ -1,212 +1,105 @@
-terraform {
-  required_version = "~> 0.12"
-}
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-provider "google" {
-  project     = var.project_id
-  region      = var.region
-  credentials = file("${path.module}/key.json")
-}
-
-locals {
-  api_services = [
-    "cloudbilling.googleapis.com",
-    "compute.googleapis.com",
-    "cloudresourcemanager.googleapis.com",
-    "oslogin.googleapis.com",
-    "serviceusage.googleapis.com"
-  ]
-}
-
-data "google_project" "main" {
-  project_id = var.project_id
-}
-
-resource "google_compute_project_metadata_item" "os_login" {
-  project = data.google_project.main.project_id
-  key     = "enable-oslogin"
-  value   = "TRUE"
-}
-
+# [START compute_flask_quickstart_vpc]
 resource "google_compute_network" "vpc_network" {
-  name                    = "vpc-network"
-  auto_create_subnetworks = true
+  name                    = "my-custom-mode-network"
+  auto_create_subnetworks = false
+  mtu                     = 1460
 }
 
-resource "google_project_service" "enabled" {
-  for_each           = toset(local.api_services)
-  service            = each.key
-  disable_on_destroy = false
+resource "google_compute_subnetwork" "default" {
+  name          = "my-custom-subnet"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-east1"
+  network       = google_compute_network.vpc_network.id
 }
+# [END compute_flask_quickstart_vpc]
 
+# [START compute_flask_quickstart_vm]
+# Create a single Compute Engine instance
+resource "google_compute_instance" "default" {
+  name         = "flask-vm"
+  machine_type = "e2-micro"
+  zone         = "us-east1-b"
+  tags         = ["ssh"]
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  # Install Flask
+  metadata_startup_script = "sudo apt-get update; sudo apt-get install -yq build-essential python3-pip rsync; pip install flask"
+
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+
+    access_config {
+      # Include this section to give the VM an external IP address
+    }
+  }
+}
+# [END compute_flask_quickstart_vm]
+
+# [START vpc_flask_quickstart_ssh_fw]
 resource "google_compute_firewall" "ssh" {
-  name    = "enable-ssh"
+  name = "allow-ssh"
+  allow {
+    ports    = ["22"]
+    protocol = "tcp"
+  }
+  direction     = "INGRESS"
+  network       = google_compute_network.vpc_network.id
+  priority      = 1000
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["ssh"]
+}
+# [END vpc_flask_quickstart_ssh_fw]
+
+
+# [START vpc_flask_quickstart_5000_fw]
+resource "google_compute_firewall" "flask" {
+  name    = "flask-app-firewall"
   network = google_compute_network.vpc_network.id
 
   allow {
     protocol = "tcp"
-    ports    = [22]
+    ports    = ["5000"]
   }
+  source_ranges = ["0.0.0.0/0"]
+}
+# [END vpc_flask_quickstart_5000_fw]
 
-  target_tags = ["frontend", "redis"]
+# Create new multi-region storage bucket in the US
+# with versioning enabled
+
+# [START storage_bucket_tf_with_versioning]
+resource "random_id" "bucket_prefix" {
+  byte_length = 8
 }
 
-data "google_compute_default_service_account" "default" {}
-
-module "php_instance_template" {
-  service_account = {
-    email  = data.google_compute_default_service_account.default.email
-    scopes = ["compute-ro", "storage-ro"]
-  }
-  source               = "terraform-google-modules/vm/google//modules/instance_template"
-  version              = "2.1.0"
-  machine_type         = var.machine_type
-  source_image_project = "ubuntu-os-cloud"
-  source_image_family  = "ubuntu-1804-lts"
-  name_prefix          = "php"
-  tags                 = ["frontend"]
-  network              = google_compute_network.vpc_network.id
-  //  startup_script =<<EOT
-  //#!/bin/bash
-  //apt update -y
-  //apt install -y ansible
-  //gsutil cp -r ${google_storage_bucket.ansible.url}/ansible /opt
-  //ansible-playbook /opt/ansible/playbook.yml -t nginx,php
-  //EOT
-  metadata = {
-    enable-oslogin = "TRUE"
-    user-data      = <<EOT
-#cloud-config
-packages: ["ansible"]
-write_files:
-- path: /etc/ansible/ansible.cfg
-  content: |
-      [defaults]
-      remote_tmp     = /tmp
-      local_tmp      = /tmp
-runcmd:
-- gsutil cp -r ${google_storage_bucket.ansible.url}/ansible /opt
-- ansible-playbook /opt/ansible/playbook.yml -t web
-EOT
-  }
-  access_config = [{
-    nat_ip       = null
-    network_tier = null
-  }]
-}
-
-module "redis_instance_template" {
-  service_account = {
-    email  = data.google_compute_default_service_account.default.email
-    scopes = ["compute-ro", "storage-ro"]
-  }
-  source               = "terraform-google-modules/vm/google//modules/instance_template"
-  version              = "2.1.0"
-  machine_type         = var.machine_type
-  source_image_project = "ubuntu-os-cloud"
-  source_image_family  = "ubuntu-1804-lts"
-  name_prefix          = "redis"
-  tags                 = ["redis"]
-  network              = google_compute_network.vpc_network.id
-  //  startup_script =<<EOT
-  //#!/bin/bash
-  //apt update -y
-  //apt install -y ansible
-  //gsutil cp -r ${google_storage_bucket.ansible.url}/ansible /opt
-  //ansible-playbook /opt/ansible/playbook.yml -t redis
-  //EOT
-  metadata = {
-    enable-oslogin = "TRUE"
-    user-data      = <<EOT
-#cloud-config
-packages: ["ansible"]
-write_files:
-- path: /etc/ansible/ansible.cfg
-  content: |
-      [defaults]
-      remote_tmp     = /tmp
-      local_tmp      = /tmp
-runcmd:
-- gsutil cp -r ${google_storage_bucket.ansible.url}/ansible /opt
-- ansible-playbook /opt/ansible/playbook.yml -t redis
-EOT
-  }
-  access_config = [{
-    nat_ip       = null
-    network_tier = null
-  }]
-}
-
-module "php_mig" {
-  source              = "terraform-google-modules/vm/google//modules/mig"
-  version             = "2.1.0"
-  instance_template   = module.php_instance_template.self_link
-  region              = var.region
-  autoscaling_enabled = false
-  target_size         = 1
-  project_id          = data.google_project.main.project_id
-  hostname            = "php"
-}
-
-module "redis_mig" {
-  source              = "terraform-google-modules/vm/google//modules/mig"
-  version             = "2.1.0"
-  instance_template   = module.redis_instance_template.self_link
-  region              = var.region
-  autoscaling_enabled = false
-  target_size         = 1
-  project_id          = data.google_project.main.project_id
-  hostname            = "redis"
-}
-
-module "gce-lb-http" {
-  source  = "GoogleCloudPlatform/lb-http/google"
-  version = "~> 3.1"
-
-  name              = "http-lb"
-  project           = data.google_project.main.project_id
-  target_tags       = ["frontend"]
-  firewall_networks = [google_compute_network.vpc_network.name]
-  backends = {
-    default = {
-      description                     = null
-      protocol                        = "HTTP"
-      port                            = 80
-      port_name                       = "http"
-      timeout_sec                     = 10
-      connection_draining_timeout_sec = null
-      enable_cdn                      = false
-
-      health_check = {
-        check_interval_sec  = null
-        timeout_sec         = null
-        healthy_threshold   = null
-        unhealthy_threshold = null
-        request_path        = "/"
-        port                = 80
-        host                = null
-      }
-
-      log_config = {
-        enable      = true
-        sample_rate = 1.0
-      }
-
-      groups = [
-        {
-          group                        = module.php_mig.instance_group
-          balancing_mode               = null
-          capacity_scaler              = null
-          description                  = null
-          max_connections              = null
-          max_connections_per_instance = null
-          max_connections_per_endpoint = null
-          max_rate                     = null
-          max_rate_per_instance        = null
-          max_rate_per_endpoint        = null
-          max_utilization              = null
-        },
-      ]
-    }
+resource "google_storage_bucket" "default" {
+  name          = "${random_id.bucket_prefix.hex}-bucket-tfstate"
+  force_destroy = false
+  location      = "US"
+  storage_class = "STANDARD"
+  versioning {
+    enabled = true
   }
 }
+# [END storage_bucket_tf_with_versioning]
