@@ -1,0 +1,1 @@
+sudo apt-get update; sudo apt-get install -yq build-essential python3-pip rsync; pip install flask; pip list > /tmp/a.txt 

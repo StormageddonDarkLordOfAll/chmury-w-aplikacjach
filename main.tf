@@ -44,8 +44,20 @@ resource "google_compute_instance" "default" {
   }
 
   # Install Flask
-  metadata_startup_script = "sudo apt-get update; sudo apt-get install -yq build-essential python3-pip rsync; pip install flask; pip list > /tmp/a.txt "
-
+  #metadata_startup_script = "sudo apt-get update; sudo apt-get install -yq build-essential python3-pip rsync; pip install flask; pip list > /tmp/a.txt "
+  # on the local linux box you are executing terraform
+  # from.  The destination is on the new AWS instance.
+  provisioner "file" {
+    source      = "~/chmury-w-aplikacjach/startup.sh"
+    destination = "/tmp/startup.sh"
+  }
+  # Change permissions on bash script and execute from ec2-user.
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/startup.sh",
+      "sudo /tmp/startup.sh",
+    ]
+  }
   network_interface {
     subnetwork = google_compute_subnetwork.default.id
 
