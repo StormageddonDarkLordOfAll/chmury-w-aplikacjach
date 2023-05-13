@@ -31,8 +31,8 @@ resource "google_compute_subnetwork" "default" {
 
 # [START compute_flask_quickstart_vm]
 # Create a single Compute Engine instance
-resource "google_compute_instance" "default" {
-  name         = "flask-vm"
+resource "google_compute_instance" "frontend" {
+  name         = "frontend-vm"
   machine_type = "e2-micro"
   zone         = "us-east1-b"
   tags         = ["ssh"]
@@ -42,22 +42,23 @@ resource "google_compute_instance" "default" {
       image = "debian-cloud/debian-11"
     }
   }
+ 
 
   # Install Flask
   #metadata_startup_script = "sudo apt-get update; sudo apt-get install -yq build-essential python3-pip rsync; pip install flask; pip list > /tmp/a.txt "
   # on the local linux box you are executing terraform
   # from.  The destination is on the new AWS instance.
-  provisioner "file" {
-    source      = "~/chmury-w-aplikacjach/startup.sh"
-    destination = "/tmp/startup.sh"
-  }
+  #provisioner "file" {
+  #  source      = "~/chmury-w-aplikacjach/startup.sh"
+  #  destination = "/tmp/startup.sh"
+  #}
   # Change permissions on bash script and execute from ec2-user.
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/startup.sh",
-      "sudo /tmp/startup.sh",
-    ]
-  }
+  #provisioner "remote-exec" {
+  #  inline = [
+  #    "chmod +x /tmp/startup.sh",
+  #    "sudo /tmp/startup.sh",
+  #  ]
+  #}
   network_interface {
     subnetwork = google_compute_subnetwork.default.id
 
@@ -67,6 +68,87 @@ resource "google_compute_instance" "default" {
   }
 }
 # [END compute_flask_quickstart_vm]
+
+# [START compute_flask_quickstart_vm]
+# Create a single Compute Engine instance
+resource "google_compute_instance" "backend" {
+  name         = "backend-vm"
+  machine_type = "e2-micro"
+  zone         = "us-east1-b"
+  tags         = ["ssh"]
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+ 
+
+  # Install Flask
+  #metadata_startup_script = "sudo apt-get update; sudo apt-get install -yq build-essential python3-pip rsync; pip install flask; pip list > /tmp/a.txt "
+  # on the local linux box you are executing terraform
+  # from.  The destination is on the new AWS instance.
+  #provisioner "file" {
+  #  source      = "~/chmury-w-aplikacjach/startup.sh"
+  #  destination = "/tmp/startup.sh"
+  #}
+  # Change permissions on bash script and execute from ec2-user.
+  #provisioner "remote-exec" {
+  #  inline = [
+  #    "chmod +x /tmp/startup.sh",
+  #    "sudo /tmp/startup.sh",
+  #  ]
+  #}
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+
+    access_config {
+      # Include this section to give the VM an external IP address
+    }
+  }
+}
+
+
+# [START compute_flask_quickstart_vm]
+# Create a single Compute Engine instance
+resource "google_compute_instance" "baza" {
+  name         = "database-vm"
+  machine_type = "e2-micro"
+  zone         = "us-east1-b"
+  tags         = ["ssh"]
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+ 
+
+  # Install Flask
+  #metadata_startup_script = "sudo apt-get update; sudo apt-get install -yq build-essential python3-pip rsync; pip install flask; pip list > /tmp/a.txt "
+  # on the local linux box you are executing terraform
+  # from.  The destination is on the new AWS instance.
+  #provisioner "file" {
+  #  source      = "~/chmury-w-aplikacjach/startup.sh"
+  #  destination = "/tmp/startup.sh"
+  #}
+  # Change permissions on bash script and execute from ec2-user.
+  #provisioner "remote-exec" {
+  #  inline = [
+  #    "chmod +x /tmp/startup.sh",
+  #    "sudo /tmp/startup.sh",
+  #  ]
+  #}
+  network_interface {
+    subnetwork = google_compute_subnetwork.default.id
+
+    access_config {
+      # Include this section to give the VM an external IP address
+    }
+  }
+}
+
+
 
 # [START vpc_flask_quickstart_ssh_fw]
 resource "google_compute_firewall" "ssh" {
