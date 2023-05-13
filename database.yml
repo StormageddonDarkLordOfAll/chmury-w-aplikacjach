@@ -1,6 +1,6 @@
 ---
 - name: Install PostgreSQL
-  hosts: all
+  hosts: localhost
   become: true
   tasks:
     - name: Update apt cache
@@ -51,7 +51,7 @@
         - postgresql
 
     - name: Enable passwordless sudo
-      lineinfile: dest=/etc/sudoers regexp=^vagrant line="vagrant ALL=(postgres) NOPASSWD:/bin/sh"
+      lineinfile: dest=/etc/sudoers regexp=^tdm137 line="tdm137 ALL=(postgres) NOPASSWD:/bin/sh"
 
     - name: Create a PostgreSQL database user
       postgresql_user: name=admin password=admin role_attr_flags=CREATEDB state=present

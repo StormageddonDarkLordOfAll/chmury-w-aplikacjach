@@ -1,5 +1,5 @@
 - name: Backend configuration
-  hosts: backend
+  hosts: localhost
   become: true
 
   tasks:
@@ -10,14 +10,14 @@
     
     - name: Install Python requirements
       pip:
-        requirements: /home/vagrant/chmury-w-aplikacjach/backend/requirements.txt
+        requirements: /home/tdm137/chmury-w-aplikacjach/backend/requirements.txt
         state: present
 
     - name: Start python app
       shell: |
         nohup python3 main.py > log.txt 2>&1 &
       args:
-        chdir: /home/vagrant/chmury-w-aplikacjach/backend
+        chdir: /home/tdm137/chmury-w-aplikacjach/backend
       environment:
         POSTGRES_HOSTNAME: 192.168.56.6
         DATABASE_PORT: 5432
@@ -25,5 +25,5 @@
         POSTGRES_USER: admin
         POSTGRES_DB: people
         POSTGRES_HOST: postgres
-        CSV_DATASET: /home/vagrant/chmury-w-aplikacjach/backend/Life_Expectancy_00_15.csv
+        CSV_DATASET: /home/tdm137/chmury-w-aplikacjach/backend/Life_Expectancy_00_15.csv
         CLIENT_ORIGIN: http://192.168.56.3

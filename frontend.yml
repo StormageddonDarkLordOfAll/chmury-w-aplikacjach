@@ -1,5 +1,5 @@
 - name: Frontend configuration
-  hosts: frontend
+  hosts: localhost
   become: true
 
   tasks:
@@ -29,15 +29,15 @@
     
     - name: Install Node.js dependencies
       npm:
-        path: /home/vagrant/chmury-w-aplikacjach/frontend
+        path: /home/tdm137/chmury-w-aplikacjach/frontend
 
     - name: Build the app
       command: /usr/bin/npm run build
       args:
-        chdir: /home/vagrant/chmury-w-aplikacjach/frontend
+        chdir: /home/tdm137/chmury-w-aplikacjach/frontend
 
     - name: Copy frontend files
       copy:
         remote_src: yes
-        src: /home/vagrant/chmury-w-aplikacjach/frontend/dist/
+        src: /home/tdm137/chmury-w-aplikacjach/frontend/dist/
         dest: /var/www/html/
